@@ -1,0 +1,112 @@
+// =====================================================================
+// 1. CONFIGURACIÓN PRINCIPAL
+// =====================================================================
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// =====================================================================
+// 2. MÓDULO DE USUARIOS (Delegado a Supabase Auth)
+// =====================================================================
+model Usuario {
+  id        String   @id @default(uuid()) 
+  email     String   @unique
+  nombre    String?
+  rol       String   @default("ESTUDIANTE") // "ADMIN" o "ESTUDIANTE"
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// =====================================================================
+// 3. MÓDULO DE CATÁLOGO DE CURSOS (LMS)
+// =====================================================================
+model Categoria {
+  id            String         @id @default(uuid())
+  nombre        String         @unique
+  slug          String         @unique
+  descripcion   String?
+  
+  subcategorias Subcategoria[]
+  cursos        Curso[]
+  
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+model Subcategoria {
+  id          String    @id @default(uuid())
+  nombre      String
+  slug        String    @unique
+  
+  categoriaId String
+  // Protege la categoría padre de borrados accidentales
+  categoria   Categoria @relation(fields: [categoriaId], references: [id], onDelete: Restrict)
+  
+  cursos      Curso[]
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([nombre, categoriaId])
+  @@index([categoriaId]) // Índice de velocidad
+}
+
+model Curso {
+  id               String        @id @default(uuid())
+  titulo           String
+  tituloBusqueda   String        // Clave para el buscador en vivo sin tildes ni mayúsculas
+  slug             String        @unique
+  
+  descripcionCorta String        @db.VarChar(160) // Para las tarjetas del catálogo
+  descripcion      String        @db.Text         // Ficha detallada del curso
+  
+  portadaUrl       String?       
+  pdfUrl           String        
+  
+  esGratis         Boolean       @default(true) 
+  precio           Float? 
+  publicado        Boolean       @default(false)  // Switch maestro para ocultar/mostrar en la web
+  
+  categoriaId      String
+  categoria        Categoria     @relation(fields: [categoriaId], references: [id], onDelete: Restrict)
+  
+  subcategoriaId   String?
+  subcategoria     Subcategoria? @relation(fields: [subcategoriaId], references: [id], onDelete: Restrict)
+  
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  // Índices de alto rendimiento
+  @@index([tituloBusqueda])
+  @@index([categoriaId, publicado]) 
+  @@index([subcategoriaId, publicado])
+}
+
+// =====================================================================
+// 4. MÓDULO DE CONFIGURACIÓN GLOBAL (Autogestión del Centro)
+// =====================================================================
+model ConfiguracionWeb {
+  id                 String   @id @default("1") // Fila única
+  
+  nombreCentro       String   // Ej: "Proyecto Piña"
+  tituloSitio        String   // Pestaña del navegador
+  descripcionSeo     String?  @db.Text
+  logoUrl            String?
+  
+  whatsapp           String   // Para el botón flotante
+  emailContacto      String
+  
+  facebook           String?
+  instagram          String?
+  tiktok             String?
+  
+  heroTitulo         String   // Ej: "Ingresa a la Universidad con nuestros cursos"
+  heroSubtitulo      String
+  
+  updatedAt          DateTime @updatedAt
+}
