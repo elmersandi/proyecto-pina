@@ -13,13 +13,20 @@ datasource db {
 // 2. MÓDULO DE USUARIOS (Delegado a Supabase Auth)
 // =====================================================================
 model Usuario {
-  id        String   @id @default(uuid()) 
-  email     String   @unique
-  nombre    String?
-  rol       String   @default("ESTUDIANTE") // "ADMIN" o "ESTUDIANTE"
+  id              String    @id @default(uuid())
+  email           String    @unique
+  nombre          String?
+  apellidos       String?
+  password        String    // Aquí guardaremos la contraseña encriptada
+  rol             String    @default("ESTUDIANTE") // "ADMIN" o "ESTUDIANTE"
   
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  // Campos para la verificación OTP
+  otp             String?   // El código de 4 dígitos
+  otpExpires      DateTime? // Cuándo caduca ese código (ej. en 10 mins)
+  emailVerificado Boolean   @default(false) // Para saber si ya validó el OTP
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 }
 
 // =====================================================================
