@@ -36,7 +36,7 @@ export default function Footer() {
               Enlaces Rápidos
             </h4>
             <ul className="flex flex-col gap-3">
-              {['Inicio', 'Cursos', 'Nosotros', 'Sedes', 'Contacto'].map((item) => (
+              {['Inicio', 'Cursos', 'Contacto'].map((item) => (
                 <li key={item}>
                   <Link href={`/${item.toLowerCase() === 'inicio' ? '' : item.toLowerCase()}`} className="text-slate-400 hover:text-yellow-400 transition-colors flex items-center gap-1 text-sm font-medium group">
                     <ChevronRight className="w-4 h-4 opacity-0 -ml-5 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
