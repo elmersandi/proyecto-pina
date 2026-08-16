@@ -3,8 +3,20 @@
 import { revalidatePath } from "next/cache";
 import { ZodError } from "zod";
 import { prisma } from "@/lib/prisma";
-import { Prisma } from "@prisma/client";
 import { subcategoriaSchema } from "@/lib/validations/subcategoria.schema";
+
+interface PrismaError extends Error {
+  code: string;
+}
+
+function isPrismaError(error: unknown): error is PrismaError {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    typeof (error as Record<string, unknown>).code === "string"
+  );
+}
 
 export async function obtenerSubcategorias() {
   try {
@@ -21,8 +33,12 @@ export async function obtenerSubcategorias() {
       },
     });
     return { success: true, data: subcategorias };
-  } catch (error) {
-    console.error("obtenerSubcategorias:", error);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("obtenerSubcategorias:", error.message);
+    } else {
+      console.error("obtenerSubcategorias:", "Error desconocido");
+    }
     return { success: false, error: "No se pudieron cargar las subcategorías." };
   }
 }
@@ -39,11 +55,11 @@ export async function crearSubcategoria(formData: FormData) {
     const nueva = await prisma.subcategoria.create({ data: datos });
     revalidatePath("/admin/subcategorias");
     return { success: true, data: nueva };
-  } catch (error) {
+  } catch (error: unknown) {
     if (error instanceof ZodError) {
       return { success: false, error: error.issues[0].message };
     }
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+    if (isPrismaError(error)) {
       if (error.code === "P2002") {
         return { success: false, error: "El nombre o slug ya existe." };
       }
@@ -67,11 +83,11 @@ export async function actualizarSubcategoria(id: string, formData: FormData) {
     });
     revalidatePath("/admin/subcategorias");
     return { success: true, data: actualizada };
-  } catch (error) {
+  } catch (error: unknown) {
     if (error instanceof ZodError) {
       return { success: false, error: error.issues[0].message };
     }
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+    if (isPrismaError(error)) {
       if (error.code === "P2002") {
         return { success: false, error: "El nombre o slug ya está en uso." };
       }
@@ -85,8 +101,8 @@ export async function eliminarSubcategoria(id: string) {
     await prisma.subcategoria.delete({ where: { id } });
     revalidatePath("/admin/subcategorias");
     return { success: true };
-  } catch (error) {
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+  } catch (error: unknown) {
+    if (isPrismaError(error)) {
       if (error.code === "P2003") {
         return {
           success: false,

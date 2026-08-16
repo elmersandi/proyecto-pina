@@ -34,11 +34,6 @@ export default function Buscador({ busqueda, setBusqueda, totalResultados }: Bus
           </button>
         )}
       </div>
-
-      {/* CONTADOR DE RESULTADOS (mismo py-2 para igualar el alto vertical) */}
-      <div className="flex items-center justify-center text-[11px] font-bold text-blue-950 bg-blue-50 border border-blue-100 px-4 py-2 rounded-xl shrink-0 uppercase tracking-widest shadow-sm">
-        {totalResultados} {totalResultados === 1 ? 'Curso' : 'Cursos'}
-      </div>
       
     </div>
   );

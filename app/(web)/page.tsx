@@ -2,6 +2,7 @@
 import type { Metadata } from "next";
 import Hero from "./components/Hero";
 import Beneficios from "./components/Beneficios";
+import CursosRecientes from "./components/CursosRecientes";   
 import Estadisticas from "./components/Estadisticas";
 import Logros from "./components/Logros";
 import Modalidades from "./components/Modalidades";
@@ -19,6 +20,7 @@ export default function InicioPage() {
     <main className="flex flex-col min-h-screen">
       <Hero />
       <Beneficios />
+      <CursosRecientes/>
       <Estadisticas />
       <Logros />
       <Modalidades />

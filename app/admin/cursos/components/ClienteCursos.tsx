@@ -56,7 +56,8 @@ export default function ClienteCursos({ cursosIniciales, categorias }: Props) {
     if (!seleccionado) return;
     const res = await eliminarCurso(seleccionado.id);
     if (res.success) {
-      toast.success("Curso eliminado");
+      // --- AQUÍ ESTÁ EL MENSAJE DE ELIMINAR ACTUALIZADO ---
+      toast.success("Se eliminó correctamente el curso");
       volverALista();
     } else {
       toast.error(res.error || "Error al eliminar");

@@ -5,36 +5,36 @@ import { ChevronDown } from 'lucide-react';
 
 const faqs = [
   {
-    pregunta: "¿Cuáles son los métodos de pago aceptados?",
-    respuesta: "Aceptamos pagos a través de Yape, Plin y transferencias bancarias directas. Todo el proceso es 100% seguro."
+    pregunta: "¿Tengo que pagar para descargar los materiales?",
+    respuesta: "No, todo el material disponible actualmente en nuestra plataforma es 100% gratuito. Nuestro objetivo es ayudarte en tu preparación pre-universitaria sin barreras."
   },
   {
-    pregunta: "¿Cómo accedo al material después del pago?",
-    respuesta: "Una vez verificado tu pago, tu cuenta se activará automáticamente y podrás descargar el material las 24 horas del día."
+    pregunta: "¿Necesito registrarme o crear una cuenta?",
+    respuesta: "No es necesario crear ninguna cuenta ni dejar tus datos. Puedes explorar nuestro catálogo y descargar el contenido que necesites de forma directa e inmediata."
   },
   {
-    pregunta: "¿El pago por el curso es mensual o único?",
-    respuesta: "El pago es único. No hay mensualidades ni cobros ocultos; pagas una vez y tienes acceso al material."
+    pregunta: "¿En qué formato se encuentran los cursos?",
+    respuesta: "Los materiales de estudio se encuentran organizados y optimizados en formato PDF de alta calidad, listos para que los leas en pantalla o los imprimas."
   },
   {
-    pregunta: "¿Tengo asesoría si no entiendo algún tema?",
-    respuesta: "¡Por supuesto! Contamos con un botón de 'Consulta Académica' que te conectará directamente con nuestros asesores."
+    pregunta: "¿Puedo estudiar y descargar desde mi celular?",
+    respuesta: "¡Totalmente! Nuestra plataforma está diseñada para funcionar a la perfección en dispositivos móviles. Puedes buscar y descargar tu material desde cualquier lugar."
   },
   {
-    pregunta: "¿Los cursos incluyen algún certificado?",
-    respuesta: "Sí, al finalizar y aprobar las evaluaciones correspondientes, se emite un certificado digital a nombre de la academia."
+    pregunta: "¿El material está actualizado para los exámenes recientes?",
+    respuesta: "Sí, nuestro equipo académico revisa y actualiza constantemente el contenido basándose en los prospectos y últimos exámenes de admisión de la región."
   },
   {
-    pregunta: "¿Por cuánto tiempo tengo acceso a mi cuenta?",
-    respuesta: "El acceso a los materiales que adquieras es de por vida, incluyendo las futuras actualizaciones que se le hagan al curso."
+    pregunta: "¿Qué hago si tengo dudas con algún ejercicio?",
+    respuesta: "Aunque la plataforma es de descarga y autoestudio, puedes comunicarte con nosotros a través de nuestras redes sociales o WhatsApp en la sección de Contacto para orientarte."
   },
   {
-    pregunta: "¿Puedo estudiar desde mi celular o tablet?",
-    respuesta: "Totalmente. Nuestra plataforma está optimizada para que puedas leer y descargar tus PDFs desde cualquier dispositivo móvil."
+    pregunta: "¿Este material me sirve para cualquier universidad?",
+    respuesta: "Los cursos cubren los temas exigidos en los prospectos generales a nivel nacional, con un enfoque estratégico en los temas más recurrentes de las universidades amazónicas."
   },
   {
-    pregunta: "¿Qué hago si olvido mi contraseña?",
-    respuesta: "En la pantalla de ingreso encontrarás la opción 'Olvidé mi contraseña' para recuperarla fácilmente con tu correo."
+    pregunta: "¿Puedo compartir los PDFs con mis compañeros?",
+    respuesta: "¡Claro que sí! Te invitamos a compartir el enlace de Proyecto Piña con todos tus amigos del colegio para que también puedan prepararse para su examen de admisión."
   }
 ];
 
@@ -50,7 +50,7 @@ export default function FaqContacto() {
         >
           <button
             onClick={() => setAbierto(abierto === index ? null : index)}
-            className="w-full flex items-center justify-between p-4 text-left focus:outline-none"
+            className="w-full flex items-center justify-between p-4 text-left focus:outline-none cursor-pointer"
           >
             <span className="font-semibold text-slate-800 text-[13px] sm:text-sm pr-4">{faq.pregunta}</span>
             <ChevronDown 

@@ -12,19 +12,50 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// Aprovechamos para ponerle el nombre real de tu academia para el SEO global
+// Configuración de SEO Global para Google y Redes Sociales
 export const metadata: Metadata = {
-  title: "Proyecto Piña | Academia Pre-Universitaria",
-  description: "Asegura tu ingreso a la universidad con nuestra preparación de excelencia en Proyecto Piña.",
+  title: "Proyecto Piña | Academia Pre-Universitaria en Loreto",
+  description: "Descarga materiales gratuitos, PDFs, prácticas y simulacros tipo examen de admisión. Prepárate con la mejor academia de la Amazonía peruana.",
+  keywords: ["academia preuniversitaria", "Iquitos", "Loreto", "exámenes de admisión", "UNAP", "cursos gratis", "Proyecto Piña"],
+  authors: [{ name: "Proyecto Piña" }],
+  openGraph: {
+    title: "Proyecto Piña | Academia Pre-Universitaria",
+    description: "Material preuniversitario gratuito y actualizado para asegurar tu ingreso a la universidad.",
+    url: "https://proyectopiña.com",
+    siteName: "Proyecto Piña",
+    images: [
+      {
+        url: "/logo.png",
+        width: 1200,
+        height: 630,
+        alt: "Logo de Proyecto Piña",
+      }
+    ],
+    locale: "es_PE",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Proyecto Piña | Academia Pre-Universitaria",
+    description: "Descarga materiales preuniversitarios gratuitos en Iquitos.",
+    images: ["/logo.png"],
+  },
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html
-      lang="es" // 1. Cambiamos el idioma a español
-      suppressHydrationWarning // 2. Agregamos este escudo contra extensiones del navegador
+      lang="es"
+      suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <head>
+        <meta name="google-site-verification" content="xstR5789p9plzlKqM-klBaAmVaGhstNECu94G-7Wq9c" />
+      </head>
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );

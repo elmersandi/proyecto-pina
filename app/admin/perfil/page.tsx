@@ -68,10 +68,9 @@ export default function PerfilAdminPage() {
     setCargandoGuardar(false);
   };
 
-  // SKELETON EXACTO DE TUS OTROS MÓDULOS MIENTRAS CARGA
   if (cargandoInfo) {
     return (
-      <div className="w-full">
+      <div className="w-full space-y-8">
         <div className="-mx-4 sm:-mx-6 lg:-mx-8 -mt-4 sm:-mt-6 lg:-mt-8 h-[3px] bg-orange-100/50 overflow-hidden relative mb-8">
           <div
             className="absolute top-0 left-0 h-full bg-orange-600 shadow-[0_0_12px_#ea580c]"
@@ -92,7 +91,7 @@ export default function PerfilAdminPage() {
             <div className="h-4 w-80 bg-slate-100 rounded-md animate-pulse"></div>
           </div>
 
-          <div className="w-full h-96 bg-white border border-slate-200/80 rounded-xl p-6 shadow-sm animate-pulse mt-6 space-y-4">
+          <div className="w-full h-96 bg-white border border-slate-200/80 rounded-2xl p-6 shadow-sm animate-pulse space-y-4">
             <div className="h-6 w-36 bg-slate-200 rounded"></div>
             <div className="space-y-4 pt-2">
               <div className="h-12 w-full bg-slate-100 rounded-lg"></div>
@@ -106,110 +105,111 @@ export default function PerfilAdminPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-4 pb-10">
-      <Toaster position="top-center" richColors />
+    // Aquí está el cambio clave: 'w-full space-y-8' para que iguale al Dashboard
+    <div className="space-y-8">
 
-      {/* Cabecera compacta estilo categorías */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white px-5 py-4 rounded-xl shadow-sm border border-slate-200">
-        <div>
-          <h1 className="text-xl font-bold text-slate-900">Mi Perfil</h1>
-          <p className="text-xs font-medium text-slate-500">
-            Administra tu información personal y credenciales de acceso.
-          </p>
-        </div>
+      {/* Cabecera idéntica al Dashboard */}
+      <div>
+        <h1 className="text-2xl font-semibold text-slate-800">Mi Perfil</h1>
+        <p className="text-sm text-slate-500 mt-1">
+          Administra tu información personal y credenciales de acceso.
+        </p>
       </div>
 
-      {/* Formulario */}
-      <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 sm:p-6 space-y-5">
+      {/* Formulario a todo el ancho */}
+      <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8 space-y-6">
         
         {/* Sección Datos Personales */}
-        <div className="space-y-3">
-          <h2 className="text-xs font-bold text-slate-900 uppercase tracking-wider border-b border-slate-100 pb-2">
+        <div className="space-y-4">
+          <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-100 pb-2">
             Información Personal
           </h2>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div>
-              <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">Nombre</label>
+              <label className="block text-xs font-semibold text-slate-700 uppercase mb-1.5">Nombre</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <User size={15} className="text-slate-400" />
+                  <User size={16} className="text-slate-400" />
                 </div>
                 <input 
                   type="text" required value={nombre} onChange={(e) => setNombre(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm font-semibold text-slate-900" 
+                  className="w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-orange-500 text-sm font-semibold text-slate-800" 
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">Apellidos</label>
+              <label className="block text-xs font-semibold text-slate-700 uppercase mb-1.5">Apellidos</label>
               <input 
                 type="text" required value={apellidos} onChange={(e) => setApellidos(e.target.value)}
-                className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm font-semibold text-slate-900" 
+                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-orange-500 text-sm font-semibold text-slate-800" 
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div>
-              <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">Correo Electrónico</label>
+              <label className="block text-xs font-semibold text-slate-700 uppercase mb-1.5">Correo Electrónico</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail size={15} className="text-slate-400" />
+                  <Mail size={16} className="text-slate-400" />
                 </div>
                 <input 
                   type="email" disabled value={correo}
-                  className="w-full pl-9 pr-3 py-2.5 bg-slate-100 border border-slate-200 rounded-lg text-sm font-semibold text-slate-500 cursor-not-allowed" 
+                  className="w-full pl-10 pr-3 py-2.5 bg-slate-100 border border-slate-200 rounded-lg text-sm font-semibold text-slate-500 cursor-not-allowed" 
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">Rol Asignado</label>
-              <div className="inline-flex items-center gap-1.5 px-3 py-2.5 bg-orange-50 border border-orange-200 text-orange-800 rounded-lg text-xs font-bold w-full">
-                <ShieldCheck size={15} /> {rol}
+              <label className="block text-xs font-semibold text-slate-700 uppercase mb-1.5">Rol Asignado</label>
+              <div className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-lg text-xs font-semibold w-full">
+                <ShieldCheck size={16} /> {rol}
               </div>
             </div>
           </div>
         </div>
 
         {/* Sección Seguridad / Contraseña */}
-        <div className="space-y-3 pt-3 border-t border-slate-100">
-          <h2 className="text-xs font-bold text-slate-900 uppercase tracking-wider pb-1">
-            Seguridad y Contraseña (Opcional)
-          </h2>
-          <p className="text-xs font-medium text-slate-500">Deja estos campos en blanco si no deseas modificar tu clave.</p>
-
+        <div className="space-y-4 pt-4 border-t border-slate-100">
           <div>
-            <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">Contraseña Actual</label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Lock size={15} className="text-slate-400" />
-              </div>
-              <input 
-                type="password" value={passwordActual} onChange={(e) => setPasswordActual(e.target.value)}
-                className="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm font-semibold text-slate-900 placeholder:text-slate-400" 
-                placeholder="Ingresa tu clave actual para validar"
-              />
-            </div>
+            <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wider pb-1">
+              Seguridad y Contraseña (Opcional)
+            </h2>
+            <p className="text-sm text-slate-500">Deja estos campos en blanco si no deseas modificar tu clave.</p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div className="md:col-span-2">
+              <label className="block text-xs font-semibold text-slate-700 uppercase mb-1.5">Contraseña Actual</label>
+              <div className="relative md:w-1/2 pr-2">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Lock size={16} className="text-slate-400" />
+                </div>
+                <input 
+                  type="password" value={passwordActual} onChange={(e) => setPasswordActual(e.target.value)}
+                  className="w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-orange-500 text-sm font-semibold text-slate-800 placeholder:text-slate-400" 
+                  placeholder="Ingresa tu clave actual para validar"
+                />
+              </div>
+            </div>
+
             <div>
-              <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">Nueva Contraseña</label>
+              <label className="block text-xs font-semibold text-slate-700 uppercase mb-1.5">Nueva Contraseña</label>
               <input 
                 type="password" value={nuevaPassword} onChange={(e) => setNuevaPassword(e.target.value)}
-                className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm font-semibold text-slate-900 placeholder:text-slate-400" 
+                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-orange-500 text-sm font-semibold text-slate-800 placeholder:text-slate-400" 
                 placeholder="Nueva clave"
               />
             </div>
+            
             <div>
-              <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">Confirmar Nueva Contraseña</label>
+              <label className="block text-xs font-semibold text-slate-700 uppercase mb-1.5">Confirmar Nueva Contraseña</label>
               <input 
                 type="password" value={confirmarNueva} onChange={(e) => setConfirmarNueva(e.target.value)}
-                className={`w-full px-3 py-2.5 bg-slate-50 border rounded-lg focus:outline-none focus:ring-2 text-sm font-semibold text-slate-900 placeholder:text-slate-400
-                  ${confirmarNueva.length > 0 ? (passwordsCoinciden ? 'border-green-500 focus:ring-green-500' : 'border-red-500 focus:ring-red-500') : 'border-slate-200 focus:ring-orange-500'}`}
+                className={`w-full px-4 py-2.5 bg-slate-50 border rounded-lg focus:outline-none focus:ring-1 text-sm font-semibold text-slate-800 placeholder:text-slate-400
+                  ${confirmarNueva.length > 0 ? (passwordsCoinciden ? 'border-emerald-500 focus:ring-emerald-500' : 'border-red-500 focus:ring-red-500') : 'border-slate-200 focus:ring-orange-500'}`}
                 placeholder="Repite la nueva clave"
               />
             </div>
@@ -217,23 +217,23 @@ export default function PerfilAdminPage() {
 
           {/* Validadores dinámicos */}
           {nuevaPassword.length > 0 && (
-            <div className="bg-slate-50 p-3 rounded-lg border border-slate-200">
-              <ul className="text-xs space-y-1 font-medium">
-                <li className={`flex items-center gap-2 ${reqs.longitud ? 'text-green-600 font-bold' : 'text-slate-500'}`}>{reqs.longitud ? <Check size={13}/> : <X size={13}/>} De 8 a 12 caracteres</li>
-                <li className={`flex items-center gap-2 ${reqs.mayuscula ? 'text-green-600 font-bold' : 'text-slate-500'}`}>{reqs.mayuscula ? <Check size={13}/> : <X size={13}/>} Al menos una mayúscula</li>
-                <li className={`flex items-center gap-2 ${reqs.minuscula ? 'text-green-600 font-bold' : 'text-slate-500'}`}>{reqs.minuscula ? <Check size={13}/> : <X size={13}/>} Al menos una minúscula</li>
-                <li className={`flex items-center gap-2 ${reqs.numero ? 'text-green-600 font-bold' : 'text-slate-500'}`}>{reqs.numero ? <Check size={13}/> : <X size={13}/>} Al menos un número</li>
-                <li className={`flex items-center gap-2 ${reqs.especial ? 'text-green-600 font-bold' : 'text-slate-500'}`}>{reqs.especial ? <Check size={13}/> : <X size={13}/>} Un carácter especial (@, $, etc.)</li>
+            <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
+              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-semibold">
+                <li className={`flex items-center gap-2 ${reqs.longitud ? 'text-emerald-600' : 'text-slate-500'}`}>{reqs.longitud ? <Check size={14}/> : <X size={14}/>} De 8 a 12 caracteres</li>
+                <li className={`flex items-center gap-2 ${reqs.mayuscula ? 'text-emerald-600' : 'text-slate-500'}`}>{reqs.mayuscula ? <Check size={14}/> : <X size={14}/>} Al menos una mayúscula</li>
+                <li className={`flex items-center gap-2 ${reqs.minuscula ? 'text-emerald-600' : 'text-slate-500'}`}>{reqs.minuscula ? <Check size={14}/> : <X size={14}/>} Al menos una minúscula</li>
+                <li className={`flex items-center gap-2 ${reqs.numero ? 'text-emerald-600' : 'text-slate-500'}`}>{reqs.numero ? <Check size={14}/> : <X size={14}/>} Al menos un número</li>
+                <li className={`flex items-center gap-2 ${reqs.especial ? 'text-emerald-600' : 'text-slate-500'}`}>{reqs.especial ? <Check size={14}/> : <X size={14}/>} Un carácter especial (@, $, etc.)</li>
               </ul>
             </div>
           )}
         </div>
 
         {/* Botón de Guardar */}
-        <div className="pt-2 flex justify-end">
+        <div className="pt-4 flex justify-end border-t border-slate-100">
           <button 
             type="submit" disabled={cargandoGuardar}
-            className="bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2.5 px-5 rounded-lg transition-all flex items-center gap-2 shadow-sm disabled:opacity-50 cursor-pointer text-sm">
+            className="bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2.5 px-6 rounded-lg transition-all flex items-center gap-2 shadow-sm disabled:opacity-50 cursor-pointer text-sm">
             {cargandoGuardar ? <><Loader2 size={16} className="animate-spin" /> Guardando...</> : "Guardar Cambios"}
           </button>
         </div>

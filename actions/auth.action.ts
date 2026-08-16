@@ -280,3 +280,10 @@ export async function obtenerPerfilAdmin() {
     return null;
   }
 }
+
+// PASO 9: Cerrar Sesión
+export async function cerrarSesion() {
+  const cookieStore = await cookies();
+  cookieStore.delete("admin_session");
+  return { success: true };
+}

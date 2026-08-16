@@ -3,12 +3,25 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { Prisma } from "@prisma/client";
 import { v4 as uuidv4 } from "uuid";
 import { cursoSchema } from "@/lib/validations/curso.schema";
 // Importamos las herramientas nativas de Node.js para guardar en el disco duro
 import { writeFile, unlink, mkdir } from "fs/promises";
 import path from "path";
+
+// --- Guachimán de Tipos para Prisma ---
+interface PrismaError extends Error {
+  code: string;
+}
+
+function isPrismaError(error: unknown): error is PrismaError {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    typeof (error as Record<string, unknown>).code === "string"
+  );
+}
 
 // --- Función auxiliar para guardar archivos LOCALMENTE (Hostinger) ---
 async function uploadFile(
@@ -38,8 +51,10 @@ async function uploadFile(
     
     // Retornamos la ruta pública para que el navegador y la base de datos la usen
     return `/uploads/${fileName}`;
-  } catch (error) {
-    console.error(`Error al guardar el archivo en el disco:`, error);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error(`Error al guardar el archivo en el disco:`, error.message);
+    }
     throw new Error(`Error al guardar archivo en el servidor`);
   }
 }
@@ -55,8 +70,10 @@ async function deleteFile(url: string) {
   try {
     console.log(`Eliminando archivo antiguo del disco: ${filePath}`);
     await unlink(filePath);
-  } catch (error) {
-    console.error(`No se pudo eliminar el archivo (quizás ya no existe):`, error);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error(`No se pudo eliminar el archivo (quizás ya no existe):`, error.message);
+    }
   }
 }
 
@@ -71,8 +88,10 @@ export async function obtenerCursos() {
       },
     });
     return { success: true, data: cursos };
-  } catch (error) {
-    console.error("obtenerCursos:", error);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("obtenerCursos:", error.message);
+    }
     return { success: false, error: "No se pudieron cargar los cursos." };
   }
 }
@@ -134,9 +153,12 @@ export async function crearCurso(formData: FormData) {
 
     revalidatePath("/admin/cursos");
     return { success: true, data: curso };
-  } catch (error) {
-    console.error("Error en crearCurso:", error);
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error en crearCurso:", error.message);
+    }
+    
+    if (isPrismaError(error) && error.code === "P2002") {
       return { success: false, error: "El título o slug ya existe." };
     }
     return { success: false, error: error instanceof Error ? error.message : "Error al crear el curso." };
@@ -204,9 +226,12 @@ export async function actualizarCurso(id: string, formData: FormData) {
 
     revalidatePath("/admin/cursos");
     return { success: true, data: curso };
-  } catch (error) {
-    console.error("Error en actualizarCurso:", error);
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error en actualizarCurso:", error.message);
+    }
+    
+    if (isPrismaError(error) && error.code === "P2002") {
       return { success: false, error: "El título o slug ya está en uso." };
     }
     return { success: false, error: error instanceof Error ? error.message : "Error al actualizar el curso." };
@@ -226,11 +251,39 @@ export async function eliminarCurso(id: string) {
     await prisma.curso.delete({ where: { id } });
     revalidatePath("/admin/cursos");
     return { success: true };
-  } catch (error) {
-    console.error("Error en eliminarCurso:", error);
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2003") {
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error en eliminarCurso:", error.message);
+    }
+    
+    if (isPrismaError(error) && error.code === "P2003") {
       return { success: false, error: "No se puede eliminar: tiene dependencias." };
     }
     return { success: false, error: error instanceof Error ? error.message : "Error al eliminar." };
+  }
+}
+
+export async function buscarCursosRapido(termino: string) {
+  try {
+    console.log("Buscando el curso:", termino);
+
+    // Usamos SQL puro para evitar conflictos de Collation en Hostinger
+    // Se buscan los que contengan el término y estén publicados (publicado = 1)
+    const cursosRaw = await prisma.$queryRaw`
+      SELECT id, titulo, slug 
+      FROM Curso 
+      WHERE publicado = 1 AND titulo LIKE ${`%${termino}%`}
+      LIMIT 5
+    `;
+
+    // Convertimos el resultado bruto a un arreglo que React entienda
+    const cursos = Array.isArray(cursosRaw) ? cursosRaw : [];
+
+    console.log("Cursos encontrados:", cursos.length);
+    
+    return { success: true, data: cursos };
+  } catch (error) {
+    console.error("Error en el buscador rápido:", error);
+    return { success: false, error: "Error al buscar cursos" };
   }
 }

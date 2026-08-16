@@ -76,7 +76,7 @@ export default function ClienteCategorias({ categoriasIniciales }: Props) {
                 setSeleccionada(null);
                 setVista("formulario");
               }}
-              className="bg-orange-600 hover:bg-orange-700 text-white px-5 py-2.5 rounded-lg text-sm font-semibold flex items-center gap-2 transition shadow-sm"
+              className="bg-orange-600 hover:bg-orange-700 text-white px-5 py-2.5 rounded-lg text-sm font-semibold flex items-center gap-2 transition shadow-sm cursor-pointer"
             >
               <Plus size={18} /> Nueva categoría
             </button>
@@ -84,7 +84,7 @@ export default function ClienteCategorias({ categoriasIniciales }: Props) {
           {(vista === "formulario" || vista === "detalle") && (
             <button
               onClick={volverALista}
-              className="text-slate-600 hover:text-slate-800 font-semibold text-sm"
+              className="text-slate-600 hover:text-slate-800 font-semibold text-sm cursor-pointer"
             >
               ← Volver al listado
             </button>

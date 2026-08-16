@@ -1,7 +1,6 @@
 export default function Hero() {
   return (
     <div 
-      className="w-full border-b-4 border-yellow-500"
       // =====================================================================
       // FONDO GRADIENTE A PRUEBA DE BALAS (CSS Puro)
       // #020617 = Azul muy oscuro casi negro (Izquierda)

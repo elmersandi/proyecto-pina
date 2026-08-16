@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { useState, useEffect, useRef } from "react";
-import { Loader2, ChevronDown, X, Image as ImageIcon } from "lucide-react";
+import { Loader2, ChevronDown, X } from "lucide-react";
 import { cursoSchema, CursoFormData } from "@/lib/validations/curso.schema";
 import { crearCurso, actualizarCurso } from "@/actions/curso.action";
 import type { CursoConRelaciones, CategoriaBasica } from "../../cursos/types";
@@ -90,7 +90,16 @@ function CustomDropdown({
 
 export default function Formulario({ modo, curso, categorias, onGuardado, onCancelar }: Props) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Estados para los archivos y previsualizaciones
   const [portadaPreview, setPortadaPreview] = useState<string | null>(curso?.portadaUrl || null);
+  const [portadaFileName, setPortadaFileName] = useState<string | null>(
+    curso?.portadaUrl ? curso.portadaUrl.split("/").pop() || "Imagen actual" : null
+  );
+  
+  const [pdfFileName, setPdfFileName] = useState<string | null>(
+    curso?.pdfUrl ? curso.pdfUrl.split("/").pop() || "PDF actual" : null
+  );
 
   const {
     register,
@@ -122,7 +131,6 @@ export default function Formulario({ modo, curso, categorias, onGuardado, onCanc
   const categoriaSeleccionada = categorias.find((cat) => cat.id === categoriaSeleccionadaId);
   const subcategoriasFiltradas: SubcategoriaBasica[] = categoriaSeleccionada?.subcategorias || [];
 
-  // Al cambiar de categoría, reiniciar subcategoría
   useEffect(() => {
     if (categoriaSeleccionadaId !== curso?.categoriaId) {
       setValue("subcategoriaId", "");
@@ -144,9 +152,23 @@ export default function Formulario({ modo, curso, categorias, onGuardado, onCanc
       pdf: undefined,
     });
     setPortadaPreview(curso?.portadaUrl || null);
+    setPortadaFileName(curso?.portadaUrl ? curso.portadaUrl.split("/").pop() || "Imagen actual" : null);
+    setPdfFileName(curso?.pdfUrl ? curso.pdfUrl.split("/").pop() || "PDF actual" : null);
   }, [curso, reset]);
 
   const onSubmit = async (data: CursoFormData) => {
+    // Validaciones estrictas manuales
+    if (modo === "crear") {
+      if (!data.portada || data.portada.length === 0) {
+        toast.error("La portada es obligatoria para crear un curso");
+        return;
+      }
+      if (!data.pdf || data.pdf.length === 0) {
+        toast.error("El archivo PDF es obligatorio para crear un curso");
+        return;
+      }
+    }
+
     setIsSubmitting(true);
     const formData = new FormData();
     formData.append("titulo", data.titulo);
@@ -172,7 +194,7 @@ export default function Formulario({ modo, curso, categorias, onGuardado, onCanc
         : await actualizarCurso(curso!.id, formData);
 
       if (res.success) {
-        toast.success(modo === "crear" ? "Curso creado" : "Curso actualizado");
+        toast.success(modo === "crear" ? "Se creó correctamente el curso" : "Se actualizó correctamente el curso");
         onGuardado();
       } else {
         toast.error(res.error || "Error inesperado");
@@ -185,7 +207,6 @@ export default function Formulario({ modo, curso, categorias, onGuardado, onCanc
     }
   };
 
-  // Generar slug correcto (sin tildes)
   const generarSlug = (texto: string) =>
     texto
       .normalize("NFD")
@@ -193,6 +214,18 @@ export default function Formulario({ modo, curso, categorias, onGuardado, onCanc
       .toLowerCase()
       .replace(/\s+/g, "-")
       .replace(/[^a-z0-9-]/g, "");
+
+  // Funciones para limpiar los inputs de archivo
+  const limpiarPortada = () => {
+    setPortadaPreview(null);
+    setPortadaFileName(null);
+    setValue("portada", undefined);
+  };
+
+  const limpiarPdf = () => {
+    setPdfFileName(null);
+    setValue("pdf", undefined);
+  };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="bg-white rounded-xl border border-slate-300 p-6 space-y-6">
@@ -241,7 +274,7 @@ export default function Formulario({ modo, curso, categorias, onGuardado, onCanc
           {errors.descripcionCorta && <p className="text-red-500 text-xs mt-1">{errors.descripcionCorta.message}</p>}
         </div>
 
-        {/* Categoría (dropdown personalizado) */}
+        {/* Categoría */}
         <div>
           <label className="block text-sm font-semibold text-slate-700 mb-1">Categoría *</label>
           <CustomDropdown
@@ -254,7 +287,7 @@ export default function Formulario({ modo, curso, categorias, onGuardado, onCanc
           {errors.categoriaId && <p className="text-red-500 text-xs mt-1">{errors.categoriaId.message}</p>}
         </div>
 
-        {/* Subcategoría (dropdown personalizado) */}
+        {/* Subcategoría */}
         <div>
           <label className="block text-sm font-semibold text-slate-700 mb-1">Subcategoría (opcional)</label>
           <CustomDropdown
@@ -284,60 +317,103 @@ export default function Formulario({ modo, curso, categorias, onGuardado, onCanc
           {errors.descripcion && <p className="text-red-500 text-xs mt-1">{errors.descripcion.message}</p>}
         </div>
 
-        {/* Portada (con previsualización) */}
-        <div className="space-y-2">
-          <label className="block text-sm font-semibold text-slate-700 mb-1">Portada (opcional)</label>
-          <div className="flex items-start gap-4">
-            <div className="flex-1">
-              <input
-                type="file"
-                accept="image/jpeg, image/jpg, image/png, image/webp"
-                {...register("portada")}
-                onChange={(e) => {
-                  register("portada").onChange(e);
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    const url = URL.createObjectURL(file);
-                    setPortadaPreview(url);
-                  } else {
-                    setPortadaPreview(null);
-                  }
-                }}
-                className="w-full text-sm text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200 cursor-pointer"
-              />
-              {errors.portada && <p className="text-red-500 text-xs mt-1">{errors.portada.message}</p>}
+        {/* ─── ZONA DE ARCHIVOS REDISEÑADA ─── */}
+        
+        {/* Portada */}
+        <div className="space-y-1">
+          <label className="block text-sm font-semibold text-slate-700">
+            Portada {modo === "crear" ? "*" : "(opcional)"}
+          </label>
+          <div className="flex items-start gap-3">
+            {/* Botón Personalizado */}
+            <div className="flex flex-col items-start gap-1">
+              <label className="cursor-pointer text-orange-600 hover:text-orange-700 font-semibold text-sm underline decoration-2 underline-offset-4 transition">
+                Seleccionar archivo
+                <input
+                  type="file"
+                  accept="image/jpeg, image/jpg, image/png, image/webp"
+                  className="hidden" // <-- Ocultamos el input feo
+                  {...register("portada")}
+                  onChange={(e) => {
+                    register("portada").onChange(e);
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      setPortadaPreview(URL.createObjectURL(file));
+                      setPortadaFileName(file.name);
+                    } else {
+                      limpiarPortada();
+                    }
+                  }}
+                />
+              </label>
+              {/* Nombre del archivo abajo */}
+              {portadaFileName && (
+                <span className="text-xs text-slate-500 max-w-[150px] truncate" title={portadaFileName}>
+                  {portadaFileName}
+                </span>
+              )}
             </div>
+            
+            {/* Previsualización pegada */}
             {portadaPreview && (
-              <div className="relative w-20 h-20 rounded-lg overflow-hidden border border-slate-200 shrink-0">
+              <div className="relative w-14 h-14 rounded-lg overflow-hidden border border-slate-200 shrink-0 shadow-sm">
                 <img src={portadaPreview} alt="Vista previa" className="w-full h-full object-cover" />
                 <button
                   type="button"
-                  onClick={() => {
-                    setPortadaPreview(null);
-                    setValue("portada", undefined);
-                  }}
-                  className="absolute top-0 right-0 bg-red-500 text-white p-0.5 rounded-bl-lg cursor-pointer"
+                  onClick={limpiarPortada}
+                  className="absolute top-0 right-0 bg-red-500/90 hover:bg-red-600 text-white p-0.5 rounded-bl-lg transition cursor-pointer"
+                  title="Quitar imagen"
+                >
+                  <X size={12} />
+                </button>
+              </div>
+            )}
+          </div>
+          {errors.portada && <p className="text-red-500 text-xs">{errors.portada.message}</p>}
+        </div>
+
+        {/* PDF */}
+        <div className="space-y-1">
+          <label className="block text-sm font-semibold text-slate-700">
+            PDF {modo === "crear" ? "*" : "(dejar vacío para no cambiar)"}
+          </label>
+          <div className="flex flex-col items-start gap-1">
+            <label className="cursor-pointer text-orange-600 hover:text-orange-700 font-semibold text-sm underline decoration-2 underline-offset-4 transition">
+              Seleccionar archivo
+              <input
+                type="file"
+                accept="application/pdf"
+                className="hidden" // <-- Ocultamos el input feo
+                {...register("pdf")}
+                onChange={(e) => {
+                  register("pdf").onChange(e);
+                  const file = e.target.files?.[0];
+                  if (file) setPdfFileName(file.name);
+                  else limpiarPdf();
+                }}
+              />
+            </label>
+            {/* Nombre del archivo PDF con botón de quitar */}
+            {pdfFileName && (
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-slate-500 max-w-[200px] truncate" title={pdfFileName}>
+                  {pdfFileName}
+                </span>
+                <button
+                  type="button"
+                  onClick={limpiarPdf}
+                  className="text-red-500 hover:text-red-700 cursor-pointer transition"
+                  title="Quitar archivo"
                 >
                   <X size={14} />
                 </button>
               </div>
             )}
           </div>
+          {errors.pdf && <p className="text-red-500 text-xs">{errors.pdf.message}</p>}
         </div>
 
-        {/* PDF */}
-        <div>
-          <label className="block text-sm font-semibold text-slate-700 mb-1">
-            PDF {modo === "crear" ? "*" : "(dejar vacío para no cambiar)"}
-          </label>
-          <input
-            type="file"
-            accept="application/pdf"
-            {...register("pdf")}
-            className="w-full text-sm text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200 cursor-pointer"
-          />
-          {errors.pdf && <p className="text-red-500 text-xs mt-1">{errors.pdf.message}</p>}
-        </div>
+        {/* ─── FIN ZONA DE ARCHIVOS ─── */}
 
         {/* Es gratis + precio */}
         <div className="flex flex-col gap-2">

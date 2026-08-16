@@ -16,6 +16,16 @@ interface Props {
   onCancelar: () => void;
 }
 
+// Función maestra para generar slugs limpios sin perder las vocales con tilde
+const generarSlugLimpio = (texto: string) => {
+  return texto
+    .normalize("NFD") // Separa la letra de la tilde (ej: 'á' -> 'a' + '´')
+    .replace(/[\u0300-\u036f]/g, "") // Elimina los acentos huérfanos
+    .toLowerCase()
+    .replace(/\s+/g, "-") // Cambia espacios por guiones
+    .replace(/[^a-z0-9-]/g, ""); // Borra cualquier otro símbolo extraño
+};
+
 export default function Formulario({ modo, categoria, onGuardado, onCancelar }: Props) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -89,13 +99,7 @@ export default function Formulario({ modo, categoria, onGuardado, onCancelar }: 
             {...register("nombre")}
             onChange={(e) => {
               register("nombre").onChange(e);
-              setValue(
-                "slug",
-                e.target.value
-                  .toLowerCase()
-                  .replace(/\s+/g, "-")
-                  .replace(/[^a-z0-9-]/g, "")
-              );
+              setValue("slug", generarSlugLimpio(e.target.value));
             }}
             className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white text-sm font-semibold text-slate-800 placeholder:text-slate-300 focus:ring-1 focus:ring-orange-500 outline-none"
           />
@@ -110,10 +114,7 @@ export default function Formulario({ modo, categoria, onGuardado, onCancelar }: 
           <input
             {...register("slug")}
             onChange={(e) => {
-              e.target.value = e.target.value
-                .toLowerCase()
-                .replace(/\s+/g, "-")
-                .replace(/[^a-z0-9-]/g, "");
+              e.target.value = generarSlugLimpio(e.target.value);
               register("slug").onChange(e);
             }}
             className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white text-sm font-semibold text-slate-800 placeholder:text-slate-300 focus:ring-1 focus:ring-orange-500 outline-none"
@@ -140,17 +141,17 @@ export default function Formulario({ modo, categoria, onGuardado, onCancelar }: 
           type="button"
           onClick={onCancelar}
           disabled={isSubmitting}
-          className="px-5 py-2.5 border border-slate-300 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-50 transition disabled:opacity-50"
+          className="px-5 py-2.5 border border-slate-300 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-50 transition disabled:opacity-50 cursor-pointer"
         >
           Cancelar
         </button>
         <button
           type="submit"
           disabled={isSubmitting}
-          className="px-5 py-2.5 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-sm font-semibold disabled:opacity-50 transition flex items-center gap-2"
+          className="px-5 py-2.5 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-sm font-semibold disabled:opacity-50 transition flex items-center gap-2 cursor-pointer shadow-sm"
         >
           {/* Siempre reservamos el espacio del loader, solo cambiamos opacidad */}
-          <span className={`inline-flex ${isSubmitting ? 'opacity-100' : 'opacity-0'} transition-opacity`}>
+          <span className={`inline-flex ${isSubmitting ? 'opacity-100 w-4 mr-1' : 'opacity-0 w-0'} transition-all overflow-hidden`}>
             <Loader2 size={16} className="animate-spin" />
           </span>
           {modo === "crear" ? "Crear categoría" : "Guardar cambios"}

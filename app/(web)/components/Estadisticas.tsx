@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
+import Image from "next/image";
 
 // Sub-componente lógico para el contador
 interface ContadorProps {
@@ -19,7 +20,6 @@ function ContadorAnimado({ fin, duracion = 2000 }: ContadorProps) {
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        // Si el elemento entra en pantalla y no se ha animado aún
         if (entry.isIntersecting && !yaAnimado) {
           setYaAnimado(true);
           let startTimestamp: number | null = null;
@@ -27,7 +27,6 @@ function ContadorAnimado({ fin, duracion = 2000 }: ContadorProps) {
           const step = (timestamp: number) => {
             if (!startTimestamp) startTimestamp = timestamp;
             const progress = Math.min((timestamp - startTimestamp) / duracion, 1);
-            // Función easeOutQuad para que el final del conteo sea más suave
             const easeProgress = progress * (2 - progress); 
             setContador(Math.floor(easeProgress * fin));
             
@@ -38,7 +37,7 @@ function ContadorAnimado({ fin, duracion = 2000 }: ContadorProps) {
           window.requestAnimationFrame(step);
         }
       },
-      { threshold: 0.5 } // Se activa cuando el 50% del elemento es visible
+      { threshold: 0.5 } 
     );
 
     observer.observe(elemento);
@@ -57,26 +56,42 @@ export default function Estadisticas() {
   ];
 
   return (
-    <section className="w-full bg-gradient-to-r from-slate-900 to-blue-950 py-20 md:py-28 relative overflow-hidden">
+    // Cambiamos bg-slate-950 a bg-black puro
+    <section className="relative w-full py-24 md:py-32 overflow-hidden bg-black">
+      
+      {/* ==================== FONDOS OPTIMIZADOS ==================== */}
+      <div className="absolute inset-0 z-0">
+        <Image 
+          src="/bg-estadisticas.jpg" 
+          alt="Oficina de instructores Proyecto Piña" 
+          fill 
+          sizes="100vw"
+          className="object-cover object-center" 
+        />
+        {/* Capa NEGRA PURA al 75% (bg-black/75) para revelar más la imagen sin tono azul */}
+        <div className="absolute inset-0 bg-black/75"></div>
+      </div>
+
+      {/* ==================== CONTENIDO PRINCIPAL ==================== */}
       <div className="container mx-auto px-4 md:px-6 relative z-10">
         
         {/* Título de la sección */}
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-5xl font-semibold text-white tracking-tight font-heading">
+          <h2 className="text-3xl md:text-5xl font-bold text-white tracking-tight font-heading drop-shadow-md">
             Estadísticas
           </h2>
         </div>
 
         {/* Grid de números */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 md:gap-8 text-center">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 md:gap-8 text-center">
           {stats.map((stat) => (
             <div key={stat.id} className="flex flex-col items-center justify-center">
-              <div className="text-4xl md:text-5xl font-bold text-white mb-2 font-heading">
-                {stat.prefijo}
+              <div className="text-5xl md:text-6xl font-bold text-white mb-3 font-heading drop-shadow-lg">
+                <span className="text-yellow-500">{stat.prefijo}</span>
                 <ContadorAnimado fin={stat.valor} />
                 {stat.sufijo}
               </div>
-              <p className="text-slate-300 font-medium text-sm md:text-base">
+              <p className="text-slate-300 font-medium text-sm md:text-base tracking-wide uppercase">
                 {stat.texto}
               </p>
             </div>
