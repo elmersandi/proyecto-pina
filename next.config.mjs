@@ -12,6 +12,8 @@ const nextConfig = {
     serverActions: {
       bodySizeLimit: "30mb", 
     },
+    // Forzamos Webpack para evitar el error de GLIBC/Turbopack en el servidor de Hostinger
+    turbopack: false,
   },
   images: {
     remotePatterns: [
