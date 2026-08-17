@@ -5,7 +5,6 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { v4 as uuidv4 } from "uuid";
 import { cursoSchema } from "@/lib/validations/curso.schema";
-// Importamos las herramientas nativas de Node.js para guardar en el disco duro
 import { writeFile, unlink, mkdir } from "fs/promises";
 import path from "path";
 
@@ -23,56 +22,49 @@ function isPrismaError(error: unknown): error is PrismaError {
   );
 }
 
-// --- Función auxiliar para guardar archivos LOCALMENTE (Hostinger) ---
-async function uploadFile(
-  file: File,
-  tipoLog: string // Solo para saber en la terminal qué estamos subiendo
-): Promise<string> {
+// =========================================================================
+// LA BÓVEDA PERSISTENTE: Guardamos 1 nivel arriba del código de Next.js
+// =========================================================================
+const PERSISTENT_DIR = path.resolve(process.cwd(), "../storage_pina");
+
+async function uploadFile(file: File, tipoLog: string): Promise<string> {
   const ext = file.name.split(".").pop();
   const fileName = `${uuidv4()}.${ext}`;
+  const filePath = path.join(PERSISTENT_DIR, fileName);
 
-  // Convertir el archivo web a un Buffer de servidor
+  console.log(`Guardando ${fileName} (${tipoLog}) en la Bóveda Persistente...`);
+
   const arrayBuffer = await file.arrayBuffer();
   const buffer = Buffer.from(arrayBuffer);
 
-  // Definir la ruta física exacta: public/uploads
-  const uploadsDir = path.join(process.cwd(), "public", "uploads");
-  const filePath = path.join(uploadsDir, fileName);
-
-  console.log(`Guardando ${fileName} (${tipoLog}) en el disco local...`);
-
   try {
-    // Por seguridad, asegurarnos de que la carpeta exista antes de guardar
-    await mkdir(uploadsDir, { recursive: true });
-    
-    // Escribir el archivo en el disco duro
+    await mkdir(PERSISTENT_DIR, { recursive: true }); // Crea la bóveda si no existe
     await writeFile(filePath, buffer);
-    console.log(`Archivo guardado exitosamente: /uploads/${fileName}`);
+    console.log(`Archivo guardado exitosamente: ${filePath}`);
     
-    // Retornamos la ruta pública para que el navegador y la base de datos la usen
-    return `/uploads/${fileName}`;
+    // Devolvemos la ruta de la API que crearemos en el Paso 2
+    return `/api/archivos/${fileName}`;
   } catch (error: unknown) {
     if (error instanceof Error) {
-      console.error(`Error al guardar el archivo en el disco:`, error.message);
+      console.error(`Error al guardar archivo:`, error.message);
     }
     throw new Error(`Error al guardar archivo en el servidor`);
   }
 }
 
-// --- Función auxiliar para eliminar archivo antiguo local ---
 async function deleteFile(url: string) {
-  // La url que llega es tipo "/uploads/mi-archivo.pdf", extraemos solo el nombre
+  // Extraemos solo el nombre del archivo de la url (ej: /api/archivos/mi-foto.png -> mi-foto.png)
   const fileName = url.split("/").pop();
   if (!fileName) return;
 
-  const filePath = path.join(process.cwd(), "public", "uploads", fileName);
+  const filePath = path.join(PERSISTENT_DIR, fileName);
 
   try {
-    console.log(`Eliminando archivo antiguo del disco: ${filePath}`);
+    console.log(`Eliminando archivo de la bóveda: ${filePath}`);
     await unlink(filePath);
   } catch (error: unknown) {
     if (error instanceof Error) {
-      console.error(`No se pudo eliminar el archivo (quizás ya no existe):`, error.message);
+      console.error(`No se pudo eliminar:`, error.message);
     }
   }
 }
@@ -120,7 +112,6 @@ export async function crearCurso(formData: FormData) {
     }
 
     const datosValidados = validacion.data;
-
     const portadaFile = formData.get("portada") as File | null;
     const pdfFile = formData.get("pdf") as File | null;
 
@@ -128,12 +119,9 @@ export async function crearCurso(formData: FormData) {
       throw new Error("El archivo PDF es obligatorio.");
     }
 
-    // Subimos el PDF localmente
     const pdfUrl = await uploadFile(pdfFile, "PDF");
-
     let portadaUrl: string | null = null;
     if (portadaFile && portadaFile.size > 0) {
-      // Subimos la Portada localmente
       portadaUrl = await uploadFile(portadaFile, "Portada");
     }
 
@@ -142,22 +130,18 @@ export async function crearCurso(formData: FormData) {
         ...datosValidados,
         precio: datosValidados.precio ?? null,
         subcategoriaId: datosValidados.subcategoriaId ?? null,
-        tituloBusqueda: datosValidados.titulo
-          .normalize("NFD")
-          .replace(/[\u0300-\u036f]/g, "")
-          .toLowerCase(),
+        tituloBusqueda: datosValidados.titulo.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase(),
         portadaUrl,
         pdfUrl,
       },
     });
 
+    // ¡CACHÉ ARREGLADA!
     revalidatePath("/admin/cursos");
+    revalidatePath("/"); 
+    revalidatePath("/cursos");
     return { success: true, data: curso };
   } catch (error: unknown) {
-    if (error instanceof Error) {
-      console.error("Error en crearCurso:", error.message);
-    }
-    
     if (isPrismaError(error) && error.code === "P2002") {
       return { success: false, error: "El título o slug ya existe." };
     }
@@ -192,7 +176,6 @@ export async function actualizarCurso(id: string, formData: FormData) {
     }
 
     const datosValidados = validacion.data;
-
     const portadaFile = formData.get("portada") as File | null;
     const pdfFile = formData.get("pdf") as File | null;
 
@@ -200,8 +183,8 @@ export async function actualizarCurso(id: string, formData: FormData) {
     let pdfUrl = cursoActual.pdfUrl;
 
     if (portadaFile && portadaFile.size > 0) {
-      if (portadaUrl) await deleteFile(portadaUrl); // Eliminamos la vieja
-      portadaUrl = await uploadFile(portadaFile, "Portada"); // Subimos la nueva
+      if (portadaUrl) await deleteFile(portadaUrl); 
+      portadaUrl = await uploadFile(portadaFile, "Portada"); 
     }
 
     if (pdfFile && pdfFile.size > 0) {
@@ -215,22 +198,19 @@ export async function actualizarCurso(id: string, formData: FormData) {
         ...datosValidados,
         precio: datosValidados.precio ?? null,
         subcategoriaId: datosValidados.subcategoriaId ?? null,
-        tituloBusqueda: datosValidados.titulo
-          .normalize("NFD")
-          .replace(/[\u0300-\u036f]/g, "")
-          .toLowerCase(),
+        tituloBusqueda: datosValidados.titulo.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase(),
         portadaUrl,
         pdfUrl,
       },
     });
 
+    // ¡CACHÉ ARREGLADA!
     revalidatePath("/admin/cursos");
+    revalidatePath("/"); 
+    revalidatePath("/cursos");
+    revalidatePath(`/cursos/${datosValidados.slug}`);
     return { success: true, data: curso };
   } catch (error: unknown) {
-    if (error instanceof Error) {
-      console.error("Error en actualizarCurso:", error.message);
-    }
-    
     if (isPrismaError(error) && error.code === "P2002") {
       return { success: false, error: "El título o slug ya está en uso." };
     }
@@ -244,18 +224,17 @@ export async function eliminarCurso(id: string) {
     const curso = await prisma.curso.findUnique({ where: { id } });
     if (!curso) throw new Error("Curso no encontrado.");
 
-    // Eliminar archivos físicos del servidor Hostinger
     if (curso.portadaUrl) await deleteFile(curso.portadaUrl);
     if (curso.pdfUrl) await deleteFile(curso.pdfUrl);
 
     await prisma.curso.delete({ where: { id } });
+    
+    // ¡CACHÉ ARREGLADA!
     revalidatePath("/admin/cursos");
+    revalidatePath("/"); 
+    revalidatePath("/cursos");
     return { success: true };
   } catch (error: unknown) {
-    if (error instanceof Error) {
-      console.error("Error en eliminarCurso:", error.message);
-    }
-    
     if (isPrismaError(error) && error.code === "P2003") {
       return { success: false, error: "No se puede eliminar: tiene dependencias." };
     }
@@ -265,22 +244,13 @@ export async function eliminarCurso(id: string) {
 
 export async function buscarCursosRapido(termino: string) {
   try {
-    console.log("Buscando el curso:", termino);
-
-    // Usamos SQL puro para evitar conflictos de Collation en Hostinger
-    // Se buscan los que contengan el término y estén publicados (publicado = 1)
     const cursosRaw = await prisma.$queryRaw`
       SELECT id, titulo, slug 
       FROM Curso 
       WHERE publicado = 1 AND titulo LIKE ${`%${termino}%`}
       LIMIT 5
     `;
-
-    // Convertimos el resultado bruto a un arreglo que React entienda
     const cursos = Array.isArray(cursosRaw) ? cursosRaw : [];
-
-    console.log("Cursos encontrados:", cursos.length);
-    
     return { success: true, data: cursos };
   } catch (error) {
     console.error("Error en el buscador rápido:", error);
