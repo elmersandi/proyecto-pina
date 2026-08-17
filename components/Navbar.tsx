@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import { Menu, Search, Home, BookOpen, Phone, X, ChevronDown, ChevronRight, ArrowLeft, Loader2 } from "lucide-react";
 import { buscarCursosRapido } from "@/actions/curso.action";
 
@@ -22,10 +22,15 @@ interface NavbarProps {
   categorias: Categoria[];
 }
 
-export default function Navbar({ categorias }: NavbarProps) {
+interface NavbarProps {
+  categorias: Categoria[];
+}
+
+// Componente interno que maneja los parámetros de búsqueda de la URL de forma segura bajo Suspense
+function NavbarInner({ categorias }: NavbarProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const router = useRouter(); 
+  const router = useRouter();
   
   const activeCategoriaId = searchParams.get("categoria");
   const activeSubcategoriaId = searchParams.get("subcategoria");
@@ -95,7 +100,7 @@ export default function Navbar({ categorias }: NavbarProps) {
     }
   };
 
-  // FUNCION AUXILIAR (Ya no es un Componente, evita el error de React)
+  // FUNCION AUXILIAR PARA EL DROPDOWN
   const renderResultadosDropdown = () => {
     if (!showDropdown) return null;
 
@@ -114,7 +119,7 @@ export default function Navbar({ categorias }: NavbarProps) {
                   onClick={() => {
                     setShowDropdown(false);
                     setIsMobileSearchOpen(false);
-                    setQuery(""); // Limpiamos la búsqueda
+                    setQuery(""); 
                   }}
                   className="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors cursor-pointer"
                 >
@@ -141,7 +146,7 @@ export default function Navbar({ categorias }: NavbarProps) {
         {/* Barra superior (Logo, Páginas, Buscador) */}
         <div className="container mx-auto px-4 h-16 flex items-center justify-between relative" ref={searchContainerRef}>
           
-          {/* VISTA NORMAL (Se oculta en móvil si el buscador está abierto) */}
+          {/* VISTA NORMAL */}
           <div className={`flex items-center justify-between w-full h-full ${isMobileSearchOpen ? 'hidden md:flex' : 'flex'}`}>
             <div className="flex-1 flex items-center justify-start">
               <button 
@@ -197,11 +202,10 @@ export default function Navbar({ categorias }: NavbarProps) {
                   />
                   <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                 </form>
-                {/* Llamamos a la función auxiliar en lugar del componente */}
                 {renderResultadosDropdown()}
               </div>
 
-              {/* BOTÓN LUPA MÓVIL (Abre el buscador a pantalla completa) */}
+              {/* BOTÓN LUPA MÓVIL */}
               <button 
                 className="md:hidden text-blue-950 p-1 -mr-1 hover:bg-slate-100 rounded-md transition cursor-pointer"
                 onClick={() => setIsMobileSearchOpen(true)}
@@ -245,7 +249,6 @@ export default function Navbar({ categorias }: NavbarProps) {
                     </button>
                   )}
                 </form>
-                {/* Llamamos a la función auxiliar en lugar del componente */}
                 {renderResultadosDropdown()}
               </div>
             </div>
@@ -299,7 +302,7 @@ export default function Navbar({ categorias }: NavbarProps) {
         </div>
       </header>
 
-      {/* ================= MENÚ MÓVIL (Con Acordeón) ================= */}
+      {/* ================= MENÚ MÓVIL ================= */}
       {isMobileMenuOpen && (
         <div className="md:hidden fixed inset-0 z-[60] flex">
           <div className="fixed inset-0 bg-blue-950/20 backdrop-blur-sm" onClick={() => setIsMobileMenuOpen(false)}></div>
@@ -390,5 +393,14 @@ export default function Navbar({ categorias }: NavbarProps) {
         </div>
       )}
     </>
+  );
+}
+
+// Componente Exportado envuelto en Suspense para proteger el uso de useSearchParams
+export default function Navbar({ categorias }: NavbarProps) {
+  return (
+    <Suspense fallback={<header className="bg-white border-b border-slate-200 h-16 sticky top-0 z-50"></header>}>
+      <NavbarInner categorias={categorias} />
+    </Suspense>
   );
 }
