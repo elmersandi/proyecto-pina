@@ -3,7 +3,8 @@ import path from "path";
 import fs from "fs";
 
 // La misma ruta de la Bóveda Persistente
-const PERSISTENT_DIR = path.resolve(process.cwd(), "../storage_pina");
+const PROJECT_ROOT = process.cwd();
+const PERSISTENT_DIR = path.join(PROJECT_ROOT, "..", "storage_pina");
 
 export async function GET(
   request: NextRequest,

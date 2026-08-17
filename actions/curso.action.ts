@@ -25,7 +25,8 @@ function isPrismaError(error: unknown): error is PrismaError {
 // =========================================================================
 // LA BÓVEDA PERSISTENTE: Guardamos 1 nivel arriba del código de Next.js
 // =========================================================================
-const PERSISTENT_DIR = path.resolve(process.cwd(), "../storage_pina");
+const PROJECT_ROOT = process.cwd();
+const PERSISTENT_DIR = path.join(PROJECT_ROOT, "..", "storage_pina");
 
 async function uploadFile(file: File, tipoLog: string): Promise<string> {
   const ext = file.name.split(".").pop();
