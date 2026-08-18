@@ -53,7 +53,8 @@ export async function crearSubcategoria(formData: FormData) {
     const datos = subcategoriaSchema.parse(raw);
 
     const nueva = await prisma.subcategoria.create({ data: datos });
-    revalidatePath("/admin/subcategorias");
+    // Limpia la caché global instantáneamente
+    revalidatePath("/", "layout");
     return { success: true, data: nueva };
   } catch (error: unknown) {
     if (error instanceof ZodError) {
@@ -81,7 +82,8 @@ export async function actualizarSubcategoria(id: string, formData: FormData) {
       where: { id },
       data: datos,
     });
-    revalidatePath("/admin/subcategorias");
+    // Limpia la caché global instantáneamente
+    revalidatePath("/", "layout");
     return { success: true, data: actualizada };
   } catch (error: unknown) {
     if (error instanceof ZodError) {
@@ -99,7 +101,8 @@ export async function actualizarSubcategoria(id: string, formData: FormData) {
 export async function eliminarSubcategoria(id: string) {
   try {
     await prisma.subcategoria.delete({ where: { id } });
-    revalidatePath("/admin/subcategorias");
+    // Limpia la caché global instantáneamente
+    revalidatePath("/", "layout");
     return { success: true };
   } catch (error: unknown) {
     if (isPrismaError(error)) {

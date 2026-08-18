@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { useState, useEffect, useRef } from "react";
 import { Loader2, ChevronDown, X } from "lucide-react";
+import { useRouter } from "next/navigation"; // <-- 1. Importamos el router
 import { cursoSchema, CursoFormData } from "@/lib/validations/curso.schema";
 import { crearCurso, actualizarCurso } from "@/actions/curso.action";
 import type { CursoConRelaciones, CategoriaBasica } from "../../cursos/types";
@@ -90,6 +91,7 @@ function CustomDropdown({
 
 export default function Formulario({ modo, curso, categorias, onGuardado, onCancelar }: Props) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter(); // <-- 2. Inicializamos el router aquí
   
   // Estados para los archivos y previsualizaciones
   const [portadaPreview, setPortadaPreview] = useState<string | null>(curso?.portadaUrl || null);
@@ -195,6 +197,10 @@ export default function Formulario({ modo, curso, categorias, onGuardado, onCanc
 
       if (res.success) {
         toast.success(modo === "crear" ? "Se creó correctamente el curso" : "Se actualizó correctamente el curso");
+        
+        // 🔥 3. LA MAGIA: Forzamos al cliente a refrescar los datos para evitar que "retroceda" 🔥
+        router.refresh(); 
+        reset();
         onGuardado();
       } else {
         toast.error(res.error || "Error inesperado");

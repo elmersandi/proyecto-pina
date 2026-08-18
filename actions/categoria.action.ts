@@ -63,7 +63,8 @@ export async function crearCategoria(formData: FormData) {
     const datos = categoriaSchema.parse(raw);
 
     const nueva = await prisma.categoria.create({ data: datos });
-    revalidatePath("/admin/categorias");
+    // Limpia la caché global instantáneamente
+    revalidatePath("/", "layout");
     return { success: true, data: nueva };
   } catch (error: unknown) {
     if (error instanceof ZodError) {
@@ -93,7 +94,8 @@ export async function actualizarCategoria(id: string, formData: FormData) {
       where: { id },
       data: datos,
     });
-    revalidatePath("/admin/categorias");
+    // Limpia la caché global instantáneamente
+    revalidatePath("/", "layout");
     return { success: true, data: actualizada };
   } catch (error: unknown) {
     if (error instanceof ZodError) {
@@ -111,7 +113,8 @@ export async function actualizarCategoria(id: string, formData: FormData) {
 export async function eliminarCategoria(id: string) {
   try {
     await prisma.categoria.delete({ where: { id } });
-    revalidatePath("/admin/categorias");
+    // Limpia la caché global instantáneamente
+    revalidatePath("/", "layout");
     return { success: true };
   } catch (error: unknown) {
     if (isPrismaError(error)) {

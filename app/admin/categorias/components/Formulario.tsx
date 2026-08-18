@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation"; // <-- IMPORTANTE: Importamos el router
 import { categoriaSchema, CategoriaFormData } from "@/lib/validations/categoria.schema";
 import { crearCategoria, actualizarCategoria } from "@/actions/categoria.action";
 import type { CategoriaConRelaciones } from "../types";
@@ -28,6 +29,7 @@ const generarSlugLimpio = (texto: string) => {
 
 export default function Formulario({ modo, categoria, onGuardado, onCancelar }: Props) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter(); // <-- IMPORTANTE: Inicializamos el router aquí
 
   const {
     register,
@@ -70,7 +72,12 @@ export default function Formulario({ modo, categoria, onGuardado, onCancelar }: 
         toast.success(
           modo === "crear" ? "Categoría creada" : "Categoría actualizada"
         );
-        onGuardado();
+        
+        // 🔥 LA SOLUCIÓN DEFINITIVA A LA CACHÉ DEL NAVEGADOR 🔥
+        router.refresh(); // Forza al navegador a pedir los datos frescos a la BD
+        reset();          // Limpia los campos del formulario
+        onGuardado();     // Ejecuta la función para cerrar el modal o volver
+        
       } else {
         toast.error(res.error || "Error inesperado");
       }

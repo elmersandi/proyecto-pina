@@ -139,7 +139,7 @@ export async function iniciarSesion(datos: { correo: string; password: string })
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       path: "/",
-      maxAge: 60 * 60 * 24 * 7 // 7 días de sesión
+      maxAge: 30 * 60
     });
 
     return { success: true };

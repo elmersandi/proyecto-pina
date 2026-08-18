@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { useState, useEffect, useRef } from "react";
 import { Loader2, ChevronDown } from "lucide-react";
+import { useRouter } from "next/navigation"; // <-- 1. Importamos el router
 import {
   subcategoriaSchema,
   SubcategoriaFormData,
@@ -43,6 +44,7 @@ export default function Formulario({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const router = useRouter(); // <-- 2. Inicializamos el router aquí
 
   const {
     register,
@@ -104,7 +106,12 @@ export default function Formulario({
             ? "Subcategoría creada"
             : "Subcategoría actualizada"
         );
+        
+        // 🔥 3. LA MAGIA: Forzamos al cliente a refrescar los datos 🔥
+        router.refresh(); 
+        reset();
         onGuardado();
+        
       } else {
         toast.error(res.error || "Error inesperado");
       }

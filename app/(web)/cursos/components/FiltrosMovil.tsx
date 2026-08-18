@@ -46,27 +46,27 @@ export default function FiltrosMovil({
   };
 
   return (
-    <div className="lg:hidden grid grid-cols-2 gap-3 mb-4">
+    <div className="lg:hidden grid grid-cols-2 gap-2 mb-0">
       
       {/* =========================================================
-          CUSTOM DROPDOWN: CATEGORÍAS
+          CUSTOM DROPDOWN: CATEGORÍAS (COMPACTO)
       ========================================================= */}
       <div className="relative">
         <button
           type="button"
           onClick={() => toggleMenu('categoria')}
-          className={`w-full flex items-center justify-between bg-white border py-3 px-3.5 rounded-xl text-xs font-semibold outline-none shadow-sm transition-colors ${menuAbierto === 'categoria' ? 'border-blue-950 ring-2 ring-blue-950/10 text-blue-950' : 'border-slate-200 text-slate-800'}`}
+          className={`w-full flex items-center justify-between bg-white border py-1.5 px-2.5 rounded-lg text-[11px] font-semibold outline-none shadow-sm transition-colors ${menuAbierto === 'categoria' ? 'border-blue-950 ring-1 ring-blue-950/10 text-blue-950' : 'border-slate-200 text-slate-700'}`}
         >
-          <span className="truncate pr-2">{textoCategoria}</span>
-          <ChevronDown size={14} className={`shrink-0 transition-transform duration-200 ${menuAbierto === 'categoria' ? 'rotate-180 text-blue-950' : 'text-slate-400'}`} />
+          <span className="truncate pr-1">{textoCategoria}</span>
+          <ChevronDown size={12} className={`shrink-0 transition-transform duration-200 ${menuAbierto === 'categoria' ? 'rotate-180 text-blue-950' : 'text-slate-400'}`} />
         </button>
 
         {/* Lista desplegable personalizada */}
         {menuAbierto === 'categoria' && (
-          <div className="absolute z-50 top-full left-0 w-full mt-1.5 bg-white border border-slate-200 rounded-xl shadow-xl max-h-60 overflow-y-auto py-1">
+          <div className="absolute z-50 top-full left-0 w-[150%] max-w-[200px] mt-1 bg-white border border-slate-200 rounded-lg shadow-xl max-h-48 overflow-y-auto py-1">
             <button
               onClick={() => { setCategoriaSel(''); setSubcategoriaSel(''); setMenuAbierto(null); }}
-              className={`w-full text-left px-3.5 py-2.5 text-xs font-semibold transition-colors ${categoriaSel === '' ? 'bg-blue-50 text-blue-950' : 'text-slate-600 hover:bg-slate-50 hover:text-blue-950'}`}
+              className={`w-full text-left px-3 py-2 text-xs font-semibold transition-colors ${categoriaSel === '' ? 'bg-blue-50 text-blue-950' : 'text-slate-600 hover:bg-slate-50 hover:text-blue-950'}`}
             >
               Todas las Áreas
             </button>
@@ -74,7 +74,7 @@ export default function FiltrosMovil({
               <button
                 key={cat.id}
                 onClick={() => { setCategoriaSel(cat.id); setSubcategoriaSel(''); setMenuAbierto(null); }}
-                className={`w-full text-left px-3.5 py-2.5 text-xs font-semibold transition-colors ${categoriaSel === cat.id ? 'bg-blue-50 text-blue-950' : 'text-slate-600 hover:bg-slate-50 hover:text-blue-950'}`}
+                className={`w-full text-left px-3 py-2 text-xs font-semibold transition-colors ${categoriaSel === cat.id ? 'bg-blue-50 text-blue-950' : 'text-slate-600 hover:bg-slate-50 hover:text-blue-950'}`}
               >
                 {cat.nombre}
               </button>
@@ -84,25 +84,25 @@ export default function FiltrosMovil({
       </div>
 
       {/* =========================================================
-          CUSTOM DROPDOWN: SUBCATEGORÍAS
+          CUSTOM DROPDOWN: SUBCATEGORÍAS (COMPACTO)
       ========================================================= */}
       <div className="relative">
         <button
           type="button"
           onClick={() => toggleMenu('subcategoria')}
           disabled={!categoriaSel}
-          className={`w-full flex items-center justify-between border py-3 px-3.5 rounded-xl text-xs font-semibold outline-none shadow-sm transition-colors ${!categoriaSel ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed' : 'bg-white text-slate-800 border-slate-200'} ${menuAbierto === 'subcategoria' ? 'border-blue-950 ring-2 ring-blue-950/10 text-blue-950' : ''}`}
+          className={`w-full flex items-center justify-between border py-1.5 px-2.5 rounded-lg text-[11px] font-semibold outline-none shadow-sm transition-colors ${!categoriaSel ? 'bg-slate-50 text-slate-400 border-slate-200 cursor-not-allowed' : 'bg-white text-slate-700 border-slate-200'} ${menuAbierto === 'subcategoria' ? 'border-blue-950 ring-1 ring-blue-950/10 text-blue-950' : ''}`}
         >
-          <span className="truncate pr-2">{textoSubcategoria}</span>
-          <ChevronDown size={14} className={`shrink-0 transition-transform duration-200 ${menuAbierto === 'subcategoria' ? 'rotate-180 text-blue-950' : 'text-slate-400'}`} />
+          <span className="truncate pr-1">{textoSubcategoria}</span>
+          <ChevronDown size={12} className={`shrink-0 transition-transform duration-200 ${menuAbierto === 'subcategoria' ? 'rotate-180 text-blue-950' : 'text-slate-400'}`} />
         </button>
 
         {/* Lista desplegable personalizada */}
         {menuAbierto === 'subcategoria' && (
-          <div className="absolute z-50 top-full left-0 w-full mt-1.5 bg-white border border-slate-200 rounded-xl shadow-xl max-h-60 overflow-y-auto py-1">
+          <div className="absolute z-50 top-full right-0 w-[150%] max-w-[200px] mt-1 bg-white border border-slate-200 rounded-lg shadow-xl max-h-48 overflow-y-auto py-1">
             <button
               onClick={() => { setSubcategoriaSel(''); setMenuAbierto(null); }}
-              className={`w-full text-left px-3.5 py-2.5 text-xs font-semibold transition-colors ${subcategoriaSel === '' ? 'bg-blue-50 text-blue-950' : 'text-slate-600 hover:bg-slate-50 hover:text-blue-950'}`}
+              className={`w-full text-left px-3 py-2 text-xs font-semibold transition-colors ${subcategoriaSel === '' ? 'bg-blue-50 text-blue-950' : 'text-slate-600 hover:bg-slate-50 hover:text-blue-950'}`}
             >
               Todas las Especialidades
             </button>
@@ -110,7 +110,7 @@ export default function FiltrosMovil({
               <button
                 key={sub.id}
                 onClick={() => { setSubcategoriaSel(sub.id); setMenuAbierto(null); }}
-                className={`w-full text-left px-3.5 py-2.5 text-xs font-semibold transition-colors ${subcategoriaSel === sub.id ? 'bg-blue-50 text-blue-950' : 'text-slate-600 hover:bg-slate-50 hover:text-blue-950'}`}
+                className={`w-full text-left px-3 py-2 text-xs font-semibold transition-colors ${subcategoriaSel === sub.id ? 'bg-blue-50 text-blue-950' : 'text-slate-600 hover:bg-slate-50 hover:text-blue-950'}`}
               >
                 {sub.nombre}
               </button>

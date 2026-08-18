@@ -137,10 +137,7 @@ export async function crearCurso(formData: FormData) {
       },
     });
 
-    // ¡CACHÉ ARREGLADA!
-    revalidatePath("/admin/cursos");
-    revalidatePath("/"); 
-    revalidatePath("/cursos");
+    revalidatePath("/", "layout");
     return { success: true, data: curso };
   } catch (error: unknown) {
     if (isPrismaError(error) && error.code === "P2002") {
@@ -205,10 +202,7 @@ export async function actualizarCurso(id: string, formData: FormData) {
       },
     });
 
-    // ¡CACHÉ ARREGLADA!
-    revalidatePath("/admin/cursos");
-    revalidatePath("/"); 
-    revalidatePath("/cursos");
+    revalidatePath("/", "layout");
     revalidatePath(`/cursos/${datosValidados.slug}`);
     return { success: true, data: curso };
   } catch (error: unknown) {
@@ -230,10 +224,7 @@ export async function eliminarCurso(id: string) {
 
     await prisma.curso.delete({ where: { id } });
     
-    // ¡CACHÉ ARREGLADA!
-    revalidatePath("/admin/cursos");
-    revalidatePath("/"); 
-    revalidatePath("/cursos");
+    revalidatePath("/", "layout");
     return { success: true };
   } catch (error: unknown) {
     if (isPrismaError(error) && error.code === "P2003") {

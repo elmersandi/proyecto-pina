@@ -255,49 +255,56 @@ function NavbarInner({ categorias }: NavbarProps) {
           )}
         </div>
 
-        {/* SUB-BARRA DE CATEGORÍAS (Solo Escritorio) */}
-        <div className="hidden md:block bg-slate-800 border-b border-slate-900">
-          <div className="container mx-auto px-4 flex items-center flex-wrap gap-x-8 gap-y-1">
-            {categorias.map((cat) => {
-              const isCatActive = activeCategoriaId === cat.id;
+        {/* SUB-BARRA DE CATEGORÍAS (Solo Escritorio) - CARRUSEL HORIZONTAL */}
+        <div className="hidden md:block bg-slate-800 border-b border-slate-900 relative">
+          <div className="container mx-auto px-4 relative flex items-center">
+            
+            {/* Contenedor con scroll horizontal oculto */}
+            <div className="flex-1 overflow-x-auto no-scrollbar scroll-smooth flex items-center gap-x-8" id="categorias-scroll">
+              {categorias.map((cat) => {
+                const isCatActive = activeCategoriaId === cat.id;
 
-              return (
-                <div key={cat.id} className="relative group">
-                  <div className={`flex items-center gap-1 py-2 text-sm transition-colors ${
-                    isCatActive ? "text-yellow-400 font-semibold" : "text-slate-300 hover:text-white font-medium"
-                  }`}>
-                    <Link href={`/cursos?categoria=${cat.id}`} className="hover:underline underline-offset-4 cursor-pointer">
-                      {cat.nombre}
-                    </Link>
-                    {cat.subcategorias.length > 0 && <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isCatActive ? "opacity-100" : "opacity-50 group-hover:rotate-180"}`} />}
-                  </div>
-                  
-                  {cat.subcategorias.length > 0 && (
-                    <div className="absolute top-full left-0 hidden group-hover:block pt-1 z-50">
-                      <div className="w-56 bg-white border border-slate-200 shadow-xl rounded-b-md overflow-hidden py-1">
-                        {cat.subcategorias.map((sub) => {
-                          const isSubActive = activeSubcategoriaId === sub.id;
-
-                          return (
-                            <Link 
-                              key={sub.id} 
-                              href={`/cursos?subcategoria=${sub.id}`}
-                              className={`block px-4 py-2 text-sm transition-colors ${
-                                isSubActive 
-                                ? "bg-blue-50 text-blue-600 font-semibold border-l-4 border-blue-500" 
-                                : "text-slate-600 hover:bg-slate-50 hover:text-blue-600 border-l-4 border-transparent"
-                              }`}
-                            >
-                              {sub.nombre}
-                            </Link>
-                          );
-                        })}
-                      </div>
+                return (
+                  <div key={cat.id} className="relative group shrink-0">
+                    <div className={`flex items-center gap-1 py-2 text-sm transition-colors whitespace-nowrap ${
+                      isCatActive ? "text-yellow-400 font-semibold" : "text-slate-300 hover:text-white font-medium"
+                    }`}>
+                      <Link href={`/cursos?categoria=${cat.id}`} className="hover:underline underline-offset-4 cursor-pointer">
+                        {cat.nombre}
+                      </Link>
+                      {cat.subcategorias.length > 0 && <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isCatActive ? "opacity-100" : "opacity-50 group-hover:rotate-180"}`} />}
                     </div>
-                  )}
-                </div>
-              );
-            })}
+                    
+                    {cat.subcategorias.length > 0 && (
+                      <div className="absolute top-full left-0 hidden group-hover:block pt-1 z-50">
+                        <div className="w-56 bg-white border border-slate-200 shadow-xl rounded-b-md overflow-hidden py-1">
+                          {cat.subcategorias.map((sub) => {
+                            const isSubActive = activeSubcategoriaId === sub.id;
+
+                            return (
+                              <Link 
+                                key={sub.id} 
+                                href={`/cursos?subcategoria=${sub.id}`}
+                                className={`block px-4 py-2 text-sm transition-colors whitespace-normal ${
+                                  isSubActive 
+                                  ? "bg-blue-50 text-blue-600 font-semibold border-l-4 border-blue-500" 
+                                  : "text-slate-600 hover:bg-slate-50 hover:text-blue-600 border-l-4 border-transparent"
+                                }`}
+                              >
+                                {sub.nombre}
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Sombra difuminada a la derecha para indicar que hay más (CSS puramente visual) */}
+            <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-slate-800 to-transparent pointer-events-none"></div>
           </div>
         </div>
       </header>

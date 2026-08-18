@@ -77,10 +77,10 @@ export default function Catalogo({
       <div className="relative w-full bg-slate-50 border-t border-slate-200">
         <div className="relative z-10 flex flex-col lg:flex-row w-full max-w-[1800px] mx-auto">
           
-          {/* --- VISTA MÓVIL (Intacta) --- */}
-          <div className="lg:hidden p-4 border-b border-slate-200 bg-white/90 backdrop-blur-md shrink-0 sticky top-[65px] z-20 shadow-sm">
+          {/* --- VISTA MÓVIL COMPACTA --- */}
+          <div className="lg:hidden px-3 py-2 border-b border-slate-200 bg-white/95 backdrop-blur-md shrink-0 sticky top-[65px] z-20 shadow-sm flex flex-col gap-2">
             <Buscador busqueda={busqueda} setBusqueda={setBusqueda} totalResultados={cursosFiltrados.length} />
-            <div className="mt-4">
+            <div className="w-full">
               <FiltrosMovil 
                 categorias={categoriasIniciales} 
                 subcategorias={subcategoriasIniciales} 
