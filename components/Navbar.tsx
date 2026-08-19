@@ -30,8 +30,12 @@ function NavbarInner({ categorias }: NavbarProps) {
   
   const searchContainerRef = useRef<HTMLDivElement>(null);
   
+  // 🔥 REFERENCIAS PARA LA BARRA ESCRITORIO 🔥
+  const subNavRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  
   const [hoveredCatId, setHoveredCatId] = useState<string | null>(null);
+  const [dropdownLeft, setDropdownLeft] = useState<number>(0);
 
   const navLinks = [
     { name: "Inicio", href: "/", icon: Home },
@@ -114,13 +118,10 @@ function NavbarInner({ categorias }: NavbarProps) {
 
   return (
     <>
-      {/* 
-        HEADER PRINCIPAL 
-        🔥 Le quitamos el border-b aquí para que no haya línea blanca abajo del subnavbar
-      */}
+      {/* HEADER PRINCIPAL */}
       <header className="bg-white sticky top-0 z-50 flex flex-col shadow-sm">
         
-        {/* Barra superior blanca (Logo, Páginas, Buscador) 🔥 Le pasamos el border-b solo a esta sección */}
+        {/* Barra superior blanca (Logo, Páginas, Buscador) */}
         <div className="container mx-auto px-4 h-16 flex items-center justify-between relative border-b border-slate-200" ref={searchContainerRef}>
           <div className={`flex items-center justify-between w-full h-full ${isMobileSearchOpen ? 'hidden md:flex' : 'flex'}`}>
             <div className="flex-1 flex items-center justify-start">
@@ -193,13 +194,13 @@ function NavbarInner({ categorias }: NavbarProps) {
 
         {/* 🔥 SUB-BARRA DE CATEGORÍAS (ESCRITORIO) 🔥 */}
         <div 
+          ref={subNavRef}
           className="hidden md:block bg-slate-800 relative z-[60]"
           onMouseLeave={() => setHoveredCatId(null)}
         >
-          {/* 🔥 1. w-full para pegar las flechas a los bordes, px-2 para dar un respiro mínimo */}
           <div className="w-full px-2 lg:px-4 flex items-stretch">
             
-            {/* 🔥 2. Flecha Izquierda sin fondo ni borde */}
+            {/* Flecha Izquierda sin fondo ni borde */}
             <button
               onClick={() => scrollCat("izq")}
               className="px-2 text-slate-400 hover:text-white transition-colors cursor-pointer flex items-center justify-center z-10"
@@ -214,8 +215,22 @@ function NavbarInner({ categorias }: NavbarProps) {
                 return (
                   <div
                     key={cat.id}
-                    onMouseEnter={() => setHoveredCatId(cat.id)}
-                    /* 🔥 3. py-2.5 para hacerlo más angosto verticalmente */
+                    onMouseEnter={(e) => {
+                      setHoveredCatId(cat.id);
+                      if (subNavRef.current) {
+                        const itemRect = e.currentTarget.getBoundingClientRect();
+                        const containerRect = subNavRef.current.getBoundingClientRect();
+                        let leftPos = itemRect.left - containerRect.left;
+                        
+                        // Protección para no salirse de la pantalla a la derecha
+                        const dropdownWidth = 260; // Ancho base estimado del cajón
+                        if (itemRect.left + dropdownWidth > window.innerWidth) {
+                          leftPos = window.innerWidth - dropdownWidth - 20; // 20px de seguridad
+                        }
+                        
+                        setDropdownLeft(leftPos);
+                      }
+                    }}
                     className={`flex items-center gap-1 py-2.5 text-sm transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
                       isCatActive ? "text-yellow-400 font-semibold" : "text-slate-300 hover:text-white font-medium"
                     }`}
@@ -231,7 +246,7 @@ function NavbarInner({ categorias }: NavbarProps) {
               })}
             </div>
 
-            {/* 🔥 4. Flecha Derecha sin fondo ni borde */}
+            {/* Flecha Derecha sin fondo ni borde */}
             <button
               onClick={() => scrollCat("der")}
               className="px-2 text-slate-400 hover:text-white transition-colors cursor-pointer flex items-center justify-center z-10"
@@ -240,15 +255,13 @@ function NavbarInner({ categorias }: NavbarProps) {
             </button>
           </div>
 
-          {/* 🔥 5. DROPDOWN ESTILO LISTA VERTICAL 🔥 */}
+          {/* 🔥 DROPDOWN FLOTANTE DINÁMICO (TIPO TOOLTIP) 🔥 */}
           {hoveredCategoryData && hoveredCategoryData.subcategorias.length > 0 && (
-            <div className="absolute top-full left-0 w-full bg-white shadow-xl z-50 border-t border-slate-200">
-              <div className="container mx-auto px-12 py-5 flex flex-col gap-3">
-                {/* Título sutil para contexto (opcional) */}
-                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">
-                  {hoveredCategoryData.nombre}
-                </span>
-                
+            <div 
+              className="absolute top-full bg-white shadow-xl z-50 border border-slate-200 border-t-0 rounded-b-xl py-4 px-6 min-w-[240px]"
+              style={{ left: Math.max(0, dropdownLeft) }}
+            >
+              <div className="flex flex-col gap-3.5">
                 {hoveredCategoryData.subcategorias.map((sub) => {
                   const isSubActive = activeSubcategoriaId === sub.id;
                   return (
@@ -256,10 +269,10 @@ function NavbarInner({ categorias }: NavbarProps) {
                       key={sub.id}
                       href={`/cursos?subcategoria=${sub.id}`}
                       onClick={() => setHoveredCatId(null)}
-                      className={`text-[15px] font-medium transition-colors w-fit ${
+                      className={`text-sm transition-colors ${
                         isSubActive 
-                          ? "text-blue-600 font-bold" 
-                          : "text-slate-600 hover:text-blue-600"
+                          ? "text-blue-700 font-bold" 
+                          : "text-slate-800 font-semibold hover:text-blue-600"
                       }`}
                     >
                       {sub.nombre}
