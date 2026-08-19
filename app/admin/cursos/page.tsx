@@ -2,6 +2,9 @@ import { obtenerCursos } from "@/actions/curso.action";
 import { obtenerCategorias } from "@/actions/categoria.action";
 import { CursoConRelaciones } from "./types";
 import ClienteCursos from "./components/ClienteCursos";
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+export const revalidate = 0;
 
 // 1. Definimos la estructura estricta que esperamos de la base de datos
 interface CategoriaResponse {

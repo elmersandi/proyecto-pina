@@ -4,7 +4,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import { useState, useEffect, useRef, Suspense } from "react";
-import { Menu, Search, Home, BookOpen, Phone, X, ChevronDown, ChevronRight, ArrowLeft, Loader2 } from "lucide-react";
+// 🔥 Agregué ChevronLeft aquí para las flechas
+import { Menu, Search, Home, BookOpen, Phone, X, ChevronDown, ChevronRight, ChevronLeft, ArrowLeft, Loader2 } from "lucide-react";
 import { buscarCursosRapido } from "@/actions/curso.action";
 
 interface Subcategoria {
@@ -16,10 +17,6 @@ interface Categoria {
   id: string;
   nombre: string;
   subcategorias: Subcategoria[];
-}
-
-interface NavbarProps {
-  categorias: Categoria[];
 }
 
 interface NavbarProps {
@@ -47,6 +44,10 @@ function NavbarInner({ categorias }: NavbarProps) {
   
   const searchContainerRef = useRef<HTMLDivElement>(null);
 
+  // 🔥 ESTADOS Y REF PARA EL SUB-NAVBAR DE ESCRITORIO 🔥
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [hoveredCatId, setHoveredCatId] = useState<string | null>(null);
+
   const navLinks = [
     { name: "Inicio", href: "/", icon: Home },
     { name: "Cursos", href: "/cursos", icon: BookOpen },
@@ -56,6 +57,17 @@ function NavbarInner({ categorias }: NavbarProps) {
   const toggleCategory = (catId: string) => {
     setExpandedCategory(expandedCategory === catId ? null : catId);
   };
+
+  // 🔥 FUNCIÓN PARA SCROLL DE LAS FLECHAS 🔥
+  const scrollCat = (dir: "izq" | "der") => {
+    if (scrollRef.current) {
+      const scrollAmount = 250;
+      scrollRef.current.scrollBy({ left: dir === "izq" ? -scrollAmount : scrollAmount, behavior: "smooth" });
+    }
+  };
+
+  // Identificamos los datos de la categoría que está siendo "hoveada"
+  const hoveredCategoryData = categorias.find(c => c.id === hoveredCatId);
 
   // 1. Cerrar el desplegable si hacen clic afuera
   useEffect(() => {
@@ -100,7 +112,7 @@ function NavbarInner({ categorias }: NavbarProps) {
     }
   };
 
-  // FUNCION AUXILIAR PARA EL DROPDOWN
+  // FUNCION AUXILIAR PARA EL DROPDOWN DE BUSQUEDA
   const renderResultadosDropdown = () => {
     if (!showDropdown) return null;
 
@@ -255,57 +267,78 @@ function NavbarInner({ categorias }: NavbarProps) {
           )}
         </div>
 
-        {/* SUB-BARRA DE CATEGORÍAS (Solo Escritorio) - CARRUSEL HORIZONTAL */}
-        <div className="hidden md:block bg-slate-800 border-b border-slate-900 relative">
-          <div className="container mx-auto px-4 relative flex items-center">
+        {/* 🔥 SUB-BARRA DE CATEGORÍAS (Solo Escritorio) - MEGA MENÚ CON FLECHAS 🔥 */}
+        <div 
+          className="hidden md:block bg-slate-800 border-b border-slate-900 relative z-[60]"
+          onMouseLeave={() => setHoveredCatId(null)}
+        >
+          <div className="container mx-auto flex items-stretch">
             
-            {/* Contenedor con scroll horizontal oculto */}
-            <div className="flex-1 overflow-x-auto no-scrollbar scroll-smooth flex items-center gap-x-8" id="categorias-scroll">
+            {/* Botón Flecha Izquierda */}
+            <button
+              onClick={() => scrollCat("izq")}
+              className="px-4 bg-slate-800 text-slate-400 hover:text-white transition-colors cursor-pointer border-r border-slate-700 flex items-center justify-center z-10 shadow-[4px_0_10px_rgba(0,0,0,0.2)]"
+            >
+              <ChevronLeft size={20} />
+            </button>
+
+            {/* Contenedor Carrusel */}
+            <div ref={scrollRef} className="flex-1 overflow-x-auto no-scrollbar scroll-smooth flex items-center gap-x-8 px-6">
               {categorias.map((cat) => {
                 const isCatActive = activeCategoriaId === cat.id;
 
                 return (
-                  <div key={cat.id} className="relative group shrink-0">
-                    <div className={`flex items-center gap-1 py-2 text-sm transition-colors whitespace-nowrap ${
+                  <div
+                    key={cat.id}
+                    onMouseEnter={() => setHoveredCatId(cat.id)}
+                    className={`flex items-center gap-1 py-3.5 text-sm transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
                       isCatActive ? "text-yellow-400 font-semibold" : "text-slate-300 hover:text-white font-medium"
-                    }`}>
-                      <Link href={`/cursos?categoria=${cat.id}`} className="hover:underline underline-offset-4 cursor-pointer">
-                        {cat.nombre}
-                      </Link>
-                      {cat.subcategorias.length > 0 && <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isCatActive ? "opacity-100" : "opacity-50 group-hover:rotate-180"}`} />}
-                    </div>
-                    
+                    }`}
+                  >
+                    <Link href={`/cursos?categoria=${cat.id}`} className="hover:underline underline-offset-4">
+                      {cat.nombre}
+                    </Link>
                     {cat.subcategorias.length > 0 && (
-                      <div className="absolute top-full left-0 hidden group-hover:block pt-1 z-50">
-                        <div className="w-56 bg-white border border-slate-200 shadow-xl rounded-b-md overflow-hidden py-1">
-                          {cat.subcategorias.map((sub) => {
-                            const isSubActive = activeSubcategoriaId === sub.id;
-
-                            return (
-                              <Link 
-                                key={sub.id} 
-                                href={`/cursos?subcategoria=${sub.id}`}
-                                className={`block px-4 py-2 text-sm transition-colors whitespace-normal ${
-                                  isSubActive 
-                                  ? "bg-blue-50 text-blue-600 font-semibold border-l-4 border-blue-500" 
-                                  : "text-slate-600 hover:bg-slate-50 hover:text-blue-600 border-l-4 border-transparent"
-                                }`}
-                              >
-                                {sub.nombre}
-                              </Link>
-                            );
-                          })}
-                        </div>
-                      </div>
+                      <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${hoveredCatId === cat.id ? "rotate-180 text-white" : ""}`} />
                     )}
                   </div>
                 );
               })}
             </div>
 
-            {/* Sombra difuminada a la derecha para indicar que hay más (CSS puramente visual) */}
-            <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-slate-800 to-transparent pointer-events-none"></div>
+            {/* Botón Flecha Derecha */}
+            <button
+              onClick={() => scrollCat("der")}
+              className="px-4 bg-slate-800 text-slate-400 hover:text-white transition-colors cursor-pointer border-l border-slate-700 flex items-center justify-center z-10 shadow-[-4px_0_10px_rgba(0,0,0,0.2)]"
+            >
+              <ChevronRight size={20} />
+            </button>
           </div>
+
+          {/* 🔥 DROPDOWN ESTILO MEGA-MENÚ (AFUERA DEL SCROLL PARA EVITAR RECORTES) 🔥 */}
+          {hoveredCategoryData && hoveredCategoryData.subcategorias.length > 0 && (
+            <div className="absolute top-full left-0 w-full bg-white border-b border-slate-200 shadow-xl z-50">
+              <div className="container mx-auto px-12 py-5 flex flex-wrap gap-3">
+                {hoveredCategoryData.subcategorias.map((sub) => {
+                  const isSubActive = activeSubcategoriaId === sub.id;
+                  return (
+                    <Link
+                      key={sub.id}
+                      href={`/cursos?subcategoria=${sub.id}`}
+                      onClick={() => setHoveredCatId(null)}
+                      className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors shadow-sm border ${
+                        isSubActive
+                          ? "bg-blue-50 border-blue-200 text-blue-700"
+                          : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-blue-700 hover:border-blue-200"
+                      }`}
+                    >
+                      {sub.nombre}
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
       </header>
 
